@@ -2,20 +2,16 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/api/(.*)",
+      "source": "/api/:match*",
       "destination": "/api/index.js"
     },
     {
-      "source": "/",
-      "destination": "/web/index.html"
+      "source": "/web",
+      "destination": "/index.html"
     },
     {
-      "source": "/assets/(.*)",
-      "destination": "/web/assets/$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/web/$1"
+      "source": "/web/:match*",
+      "destination": "/:match*"
     }
   ],
   "headers": [

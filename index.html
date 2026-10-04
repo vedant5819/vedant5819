@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Attendance System | Java Mini Project</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📱</text></svg>">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <a href="index.html" class="nav-brand">
+            <div class="brand-icon">⚡</div>
+            <div class="brand-text">
+                <h1>QR Attendance System</h1>
+                <span>Enterprise Academic Suite</span>
+            </div>
+        </a>
+        <nav class="nav-links">
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#architecture" class="nav-link">Architecture</a>
+            <a href="#roles" class="nav-link">Portals</a>
+            <a href="login.html" class="btn btn-primary btn-sm">Sign In / Register</a>
+        </nav>
+    </header>
+
+    <!-- Main Hero Section -->
+    <main class="container">
+        <section style="text-align: center; padding: 3rem 1rem 4rem; max-width: 900px; margin: 0 auto;">
+            <div class="badge badge-info" style="margin-bottom: 1.25rem; font-size: 0.85rem; padding: 0.4rem 1rem;">
+                🚀 Java SE Embedded Server + SQLite / MySQL Database
+            </div>
+            <h1 style="font-size: 3.2rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.03em; margin-bottom: 1.25rem;">
+                Automated Attendance via <span style="background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Dynamic QR Codes</span>
+            </h1>
+            <p style="font-size: 1.15rem; color: var(--text-secondary); max-width: 720px; margin: 0 auto 2.5rem; line-height: 1.7;">
+                Eliminate manual roll-call registers, paper proxies, and calculation errors. An end-to-end digital attendance ecosystem featuring rotating dynamic QR security, campus geolocation geofencing, real-time sync, and comprehensive analytics.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="#roles" class="btn btn-primary btn-lg">Launch Demo Portals ⚡</a>
+                <a href="login.html" class="btn btn-outline btn-lg">Access Account 🔐</a>
+            </div>
+        </section>
+
+        <!-- Role Launcher Cards -->
+        <section id="roles" style="margin-bottom: 4rem;">
+            <div class="page-title" style="text-align: center; margin-bottom: 2rem;">
+                <h2>Choose Your Experience Portal</h2>
+                <p>One-click instant login credentials pre-configured for evaluation</p>
+            </div>
+
+            <div class="grid-3">
+                <!-- Student Portal -->
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(56, 189, 248, 0.15); color: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.25rem;">
+                            🎓
+                        </div>
+                        <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.5rem;">Student Portal</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">
+                            Scan dynamic classroom QR codes via camera, view personal attendance %, monitor exam eligibility status (>75%), and manage your profile.
+                        </p>
+                        <div style="background: rgba(0,0,0,0.25); padding: 0.85rem; border-radius: var(--radius-sm); font-size: 0.8rem; margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
+                            <div style="color: var(--text-muted); margin-bottom: 0.2rem;">Demo Account:</div>
+                            <div class="mono" style="color: var(--primary-light);">alex@attendance.edu / student123</div>
+                        </div>
+                    </div>
+                    <button onclick="quickLogin('alex@attendance.edu', 'student123', 'STUDENT')" class="btn btn-primary" style="width: 100%;">
+                        Launch Student Portal ➔
+                    </button>
+                </div>
+
+                <!-- Teacher Portal -->
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); color: var(--success); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.25rem;">
+                            👨‍🏫
+                        </div>
+                        <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.5rem;">Faculty / Teacher Portal</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">
+                            Generate time-rotating dynamic QR codes with live countdowns, fullscreen projector mode, real-time incoming attendance stream, and CSV export.
+                        </p>
+                        <div style="background: rgba(0,0,0,0.25); padding: 0.85rem; border-radius: var(--radius-sm); font-size: 0.8rem; margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
+                            <div style="color: var(--text-muted); margin-bottom: 0.2rem;">Demo Account:</div>
+                            <div class="mono" style="color: var(--success);">turing@attendance.edu / teacher123</div>
+                        </div>
+                    </div>
+                    <button onclick="quickLogin('turing@attendance.edu', 'teacher123', 'TEACHER')" class="btn btn-success" style="width: 100%;">
+                        Launch Teacher Portal ➔
+                    </button>
+                </div>
+
+                <!-- Admin Portal -->
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.25rem;">
+                            ⚙️
+                        </div>
+                        <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.5rem;">Admin Control Center</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">
+                            Full CRUD control of Students, Faculty, Subjects, Classes. Configure anti-proxy policies, geofence radius, and review master audit logs.
+                        </p>
+                        <div style="background: rgba(0,0,0,0.25); padding: 0.85rem; border-radius: var(--radius-sm); font-size: 0.8rem; margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
+                            <div style="color: var(--text-muted); margin-bottom: 0.2rem;">Demo Account:</div>
+                            <div class="mono" style="color: var(--accent-purple);">admin@attendance.edu / admin123</div>
+                        </div>
+                    </div>
+                    <button onclick="quickLogin('admin@attendance.edu', 'admin123', 'ADMIN')" class="btn btn-secondary" style="width: 100%;">
+                        Launch Admin Portal ➔
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Architecture & Features -->
+        <section id="features" style="margin-bottom: 4rem;">
+            <div class="page-title" style="margin-bottom: 2rem;">
+                <h2>Core Architectural Highlights</h2>
+                <p>Designed strictly following project requirements, UML use cases, and relational database schema</p>
+            </div>
+
+            <div class="grid-4">
+                <div class="card">
+                    <div style="font-size: 2rem; margin-bottom: 0.85rem;">🔄</div>
+                    <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem;">Dynamic QR Rotation</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem;">
+                        QR codes automatically refresh with cryptographic hashes and countdown timers, preventing students from taking screenshots for absent friends.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <div style="font-size: 2rem; margin-bottom: 0.85rem;">📍</div>
+                    <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem;">Anti-Proxy Geofencing</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem;">
+                        Institutional GPS verification ensures student mobile devices are physically present within the lecture hall boundary.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <div style="font-size: 2rem; margin-bottom: 0.85rem;">📊</div>
+                    <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem;">Real-Time Analytics</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem;">
+                        Automatic percentage calculation, subject-wise tracking, safe/warning/critical status indicators, and one-click CSV export.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <div style="font-size: 2rem; margin-bottom: 0.85rem;">🗄️</div>
+                    <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem;">Zero-Config Storage</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem;">
+                        Self-bootstrapping database pre-seeded with demo records. Standalone MySQL script <code class="mono">qr_attendance_system.sql</code> included.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Architecture Section (Section 2.2 in Project Report) -->
+        <section id="architecture" class="card" style="margin-bottom: 4rem;">
+            <div class="card-header">
+                <h3 class="card-title">📐 Modular Architecture & Data Flow</h3>
+                <span class="badge badge-safe">Specification Section 2.2</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+                <div style="background: rgba(255, 255, 255, 0.03); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <h4 style="color: var(--primary-light); margin-bottom: 0.5rem;">1. Faculty Initiator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                        Teacher logs into the portal, selects assigned lecture session, and starts dynamic QR broadcast on the projector display.
+                    </p>
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.03); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <h4 style="color: var(--accent-cyan); margin-bottom: 0.5rem;">2. Student Scanner</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                        Student points device camera at the classroom screen. The client captures the encrypted token along with GPS coordinates.
+                    </p>
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.03); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <h4 style="color: var(--accent-purple); margin-bottom: 0.5rem;">3. Server Validation</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                        Java backend checks QR expiry, verifies duplicate avoidance for the day, checks GPS radius tolerance, and writes to database.
+                    </p>
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.03); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <h4 style="color: var(--success); margin-bottom: 0.5rem;">4. Live Sync & Dashboard</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                        Attendance counter increments in real time on teacher's screen, student receives digital slip receipt, and % updates automatically.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p><strong>QR Code Attendance System</strong> | Java Mini Project (Academic Full-Stack Demonstration)</p>
+        <p style="margin-top: 0.3rem;">Powered by Java SE Built-in Server &bull; Relational SQL Engine &bull; HTML5 & Vanilla JavaScript</p>
+    </footer>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        async function quickLogin(email, password, role) {
+            showToast("Authenticating " + role + "...", "info");
+            const res = await apiRequest("/api/auth/login", "POST", { email, password, role });
+            if (res.success) {
+                setCurrentUser(res.user);
+                showToast("Welcome, " + res.user.name + "!", "success");
+                setTimeout(() => {
+                    if (role === "STUDENT") window.location.href = "student.html";
+                    else if (role === "TEACHER") window.location.href = "teacher.html";
+                    else if (role === "ADMIN") window.location.href = "admin.html";
+                }, 400);
+            } else {
+                showToast(res.message || "Login failed", "error");
+            }
+        }
+    </script>
+</body>
+</html>

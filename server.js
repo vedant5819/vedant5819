@@ -28,12 +28,9 @@ const server = http.createServer(async (req, res) => {
 
     // Static Files
     let filePath = pathname === '/' ? '/index.html' : pathname;
-    let absolutePath = path.join(WEB_DIR, filePath);
-
-    // Prevent directory traversal
-    if (!absolutePath.startsWith(WEB_DIR)) {
-        res.statusCode = 403;
-        return res.end('Forbidden');
+    let absolutePath = path.join(__dirname, filePath);
+    if (!fs.existsSync(absolutePath) || fs.statSync(absolutePath).isDirectory()) {
+        absolutePath = path.join(__dirname, 'web', filePath);
     }
 
     fs.stat(absolutePath, (err, stats) => {

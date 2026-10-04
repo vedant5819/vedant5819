@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control Center | QR Code Attendance</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <a href="index.html" class="nav-brand">
+            <div class="brand-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);">⚡</div>
+            <div class="brand-text">
+                <h1>Admin Control Center</h1>
+                <span>Institutional Governance & Analytics</span>
+            </div>
+        </a>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="user-badge">
+                <div class="user-avatar" style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);">A</div>
+                <div style="font-size: 0.85rem;">
+                    <div style="font-weight: 700;">Administrator</div>
+                    <div style="font-size: 0.72rem; color: var(--accent-purple);">Super Admin</div>
+                </div>
+            </div>
+            <button onclick="logout()" class="btn btn-outline btn-sm">Log Out</button>
+        </div>
+    </header>
+
+    <div class="container tabs-wrapper">
+        <!-- Top Metrics KPI Row -->
+        <div class="grid-4" style="margin-bottom: 2rem;">
+            <div class="stat-card">
+                <div class="stat-icon primary">🎓</div>
+                <div class="stat-details">
+                    <div class="stat-val" id="kpi-students">0</div>
+                    <div class="stat-label">Registered Students</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon success">👨‍🏫</div>
+                <div class="stat-details">
+                    <div class="stat-val" id="kpi-teachers">0</div>
+                    <div class="stat-label">Faculty Members</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">🏛️</div>
+                <div class="stat-details">
+                    <div class="stat-val" id="kpi-classes">0</div>
+                    <div class="stat-label">Active Classes / Labs</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon warning">📝</div>
+                <div class="stat-details">
+                    <div class="stat-val" id="kpi-today-scans">0</div>
+                    <div class="stat-label">Today's Scanned Presences</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs-header">
+            <button class="tab-btn active" data-tab="tab-adm-students">🎓 Students (CRUD)</button>
+            <button class="tab-btn" data-tab="tab-adm-teachers">👨‍🏫 Faculty (CRUD)</button>
+            <button class="tab-btn" data-tab="tab-adm-academics">📚 Subjects & Classes</button>
+            <button class="tab-btn" data-tab="tab-adm-attendance">📜 Master Attendance Log</button>
+            <button class="tab-btn" data-tab="tab-adm-security">🛡️ Anti-Proxy & Settings</button>
+        </div>
+
+        <!-- ==================== TAB 1: STUDENTS MANAGEMENT ==================== -->
+        <div id="tab-adm-students" class="tab-content active">
+            <div class="card">
+                <div class="page-header" style="margin-bottom: 1.25rem;">
+                    <div>
+                        <h3 class="card-title">Manage Student Accounts</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">View, create, update, approve, or delete student registrations</p>
+                    </div>
+                    <button onclick="openStudentModal()" class="btn btn-primary btn-sm">
+                        + Add New Student
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Roll No</th>
+                                <th>Student Name</th>
+                                <th>Email</th>
+                                <th>Department</th>
+                                <th>Semester</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-students-tbody">
+                            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading students...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 2: FACULTY MANAGEMENT ==================== -->
+        <div id="tab-adm-teachers" class="tab-content">
+            <div class="card">
+                <div class="page-header" style="margin-bottom: 1.25rem;">
+                    <div>
+                        <h3 class="card-title">Manage Faculty Members</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">View, onboard, and assign instructors</p>
+                    </div>
+                    <button onclick="openTeacherModal()" class="btn btn-success btn-sm">
+                        + Add Faculty Member
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Faculty Name</th>
+                                <th>Email</th>
+                                <th>Department</th>
+                                <th>Phone</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-teachers-tbody">
+                            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading faculty...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 3: ACADEMICS (SUBJECTS & CLASSES) ==================== -->
+        <div id="tab-adm-academics" class="tab-content">
+            <div class="grid-2">
+                <!-- Subjects Card -->
+                <div class="card">
+                    <div class="page-header" style="margin-bottom: 1rem;">
+                        <h3 class="card-title">Courses / Subjects</h3>
+                        <button onclick="openSubjectModal()" class="btn btn-secondary btn-sm">+ Add Subject</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Title</th>
+                                    <th>Department</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-subjects-tbody">
+                                <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Classes Card -->
+                <div class="card">
+                    <div class="page-header" style="margin-bottom: 1rem;">
+                        <h3 class="card-title">Classroom Sections</h3>
+                        <button onclick="openClassModal()" class="btn btn-secondary btn-sm">+ Add Section</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Class</th>
+                                    <th>Subject</th>
+                                    <th>Teacher</th>
+                                    <th>Room</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-classes-tbody">
+                                <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 4: MASTER ATTENDANCE LOG ==================== -->
+        <div id="tab-adm-attendance" class="tab-content">
+            <div class="card">
+                <div class="page-header" style="margin-bottom: 1.25rem;">
+                    <div>
+                        <h3 class="card-title">Master Institutional Attendance Records</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">Cross-subject attendance registry with real-time audit verification</p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button onclick="exportTableToCSV('admin-master-table', 'master_attendance_report.csv')" class="btn btn-secondary btn-sm">
+                            📥 Export All to CSV
+                        </button>
+                        <button onclick="loadMasterAttendance()" class="btn btn-outline btn-sm">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table" id="admin-master-table">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Student</th>
+                                <th>Roll No</th>
+                                <th>Subject</th>
+                                <th>Class</th>
+                                <th>Status</th>
+                                <th>IP / Coordinates</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-master-tbody">
+                            <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Loading master records...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 5: ANTI-PROXY & SYSTEM SETTINGS ==================== -->
+        <div id="tab-adm-security" class="tab-content">
+            <div class="grid-2">
+                <!-- Settings Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🛡️ Anti-Proxy & QR Policies</h3>
+                        <span class="badge badge-info">Section 2.2.1</span>
+                    </div>
+
+                    <form id="form-settings" onsubmit="handleSaveSettings(event)">
+                        <div class="form-group">
+                            <label class="form-label" for="set-expiry">Dynamic QR Expiry Duration (Seconds)</label>
+                            <input type="number" id="set-expiry" class="form-control" min="10" max="180" value="30">
+                            <small style="color: var(--text-muted);">Recommended: 15-30s to prevent camera screenshot transfers</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="set-geofence">Campus GPS Geofencing Enforcement</label>
+                            <select id="set-geofence" class="form-control">
+                                <option value="false">Disabled (Open Verification)</option>
+                                <option value="true">Strictly Enabled (Requires Campus Coordinates)</option>
+                            </select>
+                        </div>
+
+                        <div class="grid-2" style="gap: 0.75rem;">
+                            <div class="form-group">
+                                <label class="form-label" for="set-lat">Campus Latitude</label>
+                                <input type="text" id="set-lat" class="form-control" value="12.9716">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="set-lon">Campus Longitude</label>
+                                <input type="text" id="set-lon" class="form-control" value="77.5946">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="set-radius">Allowed Geofence Radius (Meters)</label>
+                            <input type="number" id="set-radius" class="form-control" min="50" max="5000" value="500">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            Save Anti-Proxy Configuration
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Audit and Proxy Detection Logs -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🚨 System Audit & Proxy Logs</h3>
+                        <button onclick="loadSystemLogs()" class="btn btn-secondary btn-sm">Refresh Logs</button>
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>User / Roll</th>
+                                    <th>Details</th>
+                                    <th>Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-logs-tbody">
+                                <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Loading logs...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT STUDENT -->
+    <div id="modal-student" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('modal-student')">&times;</button>
+            <h3 style="margin-bottom: 1.25rem;" id="modal-student-title">Add Student</h3>
+            <form id="form-student-modal" onsubmit="saveStudent(event)">
+                <input type="hidden" id="m-stud-id" value="0">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="m-stud-name" class="form-control" required>
+                </div>
+                <div class="grid-2" style="gap: 0.75rem;">
+                    <div class="form-group">
+                        <label class="form-label">Roll Number</label>
+                        <input type="text" id="m-stud-roll" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Semester</label>
+                        <input type="number" id="m-stud-sem" class="form-control" min="1" max="12" value="6" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Department</label>
+                    <input type="text" id="m-stud-dept" class="form-control" required>
+                </div>
+                <div class="grid-2" style="gap: 0.75rem;">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="m-stud-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" id="m-stud-phone" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group" id="m-stud-pass-grp">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="m-stud-pass" class="form-control" placeholder="Default student123">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Account Status</label>
+                    <select id="m-stud-status" class="form-control">
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="PENDING">PENDING</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Save Student Record</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT TEACHER -->
+    <div id="modal-teacher" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('modal-teacher')">&times;</button>
+            <h3 style="margin-bottom: 1.25rem;" id="modal-teacher-title">Add Faculty Member</h3>
+            <form id="form-teacher-modal" onsubmit="saveTeacher(event)">
+                <input type="hidden" id="m-teach-id" value="0">
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" id="m-teach-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="m-teach-email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Department</label>
+                    <input type="text" id="m-teach-dept" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input type="tel" id="m-teach-phone" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="m-teach-pass" class="form-control" placeholder="Default teacher123">
+                </div>
+                <button type="submit" class="btn btn-success" style="width: 100%;">Save Faculty Member</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD SUBJECT -->
+    <div id="modal-subject" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('modal-subject')">&times;</button>
+            <h3 style="margin-bottom: 1.25rem;">Add Subject</h3>
+            <form onsubmit="saveSubject(event)">
+                <input type="hidden" id="m-sub-id" value="0">
+                <div class="form-group">
+                    <label class="form-label">Subject Code</label>
+                    <input type="text" id="m-sub-code" class="form-control" placeholder="CS605" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Subject Name</label>
+                    <input type="text" id="m-sub-name" class="form-control" placeholder="Cloud Computing" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Department</label>
+                    <input type="text" id="m-sub-dept" class="form-control" value="Computer Science" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Save Subject</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD CLASS -->
+    <div id="modal-class" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('modal-class')">&times;</button>
+            <h3 style="margin-bottom: 1.25rem;">Add Class Section</h3>
+            <form onsubmit="saveClass(event)">
+                <input type="hidden" id="m-cls-id" value="0">
+                <div class="form-group">
+                    <label class="form-label">Class Name</label>
+                    <input type="text" id="m-cls-name" class="form-control" placeholder="Distributed Systems Lab" required>
+                </div>
+                <div class="grid-2" style="gap: 0.75rem;">
+                    <div class="form-group">
+                        <label class="form-label">Section</label>
+                        <input type="text" id="m-cls-sec" class="form-control" placeholder="Sec-A" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Semester</label>
+                        <input type="number" id="m-cls-sem" class="form-control" value="6" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Assign Teacher</label>
+                    <select id="m-cls-teacher" class="form-control" required></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Select Subject</label>
+                    <select id="m-cls-subject" class="form-control" required></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Room Number</label>
+                    <input type="text" id="m-cls-room" class="form-control" value="Lab 301">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Save Section</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        const admin = requireAuth('SUPER_ADMIN') || requireAuth('ADMIN');
+        let globalTeachers = [];
+        let globalSubjects = [];
+
+        if (admin) {
+            initTabs();
+            loadAllAdminData();
+        }
+
+        async function loadAllAdminData() {
+            loadKPIs();
+            loadStudents();
+            loadTeachers();
+            loadSubjects();
+            loadClasses();
+            loadMasterAttendance();
+            loadSettings();
+            loadSystemLogs();
+        }
+
+        async function loadKPIs() {
+            const res = await apiRequest('/api/admin/stats');
+            if (res.success && res.stats) {
+                document.getElementById('kpi-students').innerText = res.stats.totalStudents || 0;
+                document.getElementById('kpi-teachers').innerText = res.stats.totalTeachers || 0;
+                document.getElementById('kpi-classes').innerText = res.stats.totalClasses || 0;
+                document.getElementById('kpi-today-scans').innerText = res.stats.todayAttendanceCount || 0;
+            }
+        }
+
+        // ================== Students CRUD ==================
+        async function loadStudents() {
+            const res = await apiRequest('/api/admin/students');
+            const tbody = document.getElementById('admin-students-tbody');
+            tbody.innerHTML = '';
+            if (res.success && res.students) {
+                res.students.forEach(s => {
+                    const statusBadge = s.status === 'ACTIVE' ? 'badge-safe' : 'badge-warning';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><code class="mono" style="color:var(--primary-light)">${s.rollNo}</code></td>
+                            <td><strong>${s.name}</strong></td>
+                            <td style="color:var(--text-secondary)">${s.email}</td>
+                            <td>${s.department}</td>
+                            <td>Sem ${s.semester}</td>
+                            <td><span class="badge ${statusBadge}">${s.status}</span></td>
+                            <td>
+                                <button onclick='editStudent(${JSON.stringify(s)})' class="btn btn-secondary btn-sm">Edit</button>
+                                <button onclick="deleteStudent(${s.id})" class="btn btn-danger btn-sm">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        function openStudentModal() {
+            document.getElementById('form-student-modal').reset();
+            document.getElementById('m-stud-id').value = '0';
+            document.getElementById('modal-student-title').innerText = 'Add New Student';
+            openModal('modal-student');
+        }
+
+        function editStudent(s) {
+            document.getElementById('m-stud-id').value = s.id;
+            document.getElementById('m-stud-name').value = s.name;
+            document.getElementById('m-stud-roll').value = s.rollNo;
+            document.getElementById('m-stud-dept').value = s.department;
+            document.getElementById('m-stud-sem').value = s.semester;
+            document.getElementById('m-stud-email').value = s.email;
+            document.getElementById('m-stud-phone').value = s.phone || '';
+            document.getElementById('m-stud-status').value = s.status || 'ACTIVE';
+            document.getElementById('modal-student-title').innerText = 'Edit Student: ' + s.name;
+            openModal('modal-student');
+        }
+
+        async function saveStudent(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('m-stud-id').value);
+            const payload = {
+                id,
+                name: document.getElementById('m-stud-name').value,
+                rollNo: document.getElementById('m-stud-roll').value,
+                department: document.getElementById('m-stud-dept').value,
+                semester: document.getElementById('m-stud-sem').value,
+                email: document.getElementById('m-stud-email').value,
+                phone: document.getElementById('m-stud-phone').value,
+                password: document.getElementById('m-stud-pass').value || 'student123',
+                status: document.getElementById('m-stud-status').value
+            };
+            const res = await apiRequest('/api/admin/students', 'POST', payload);
+            if (res.success) {
+                showToast(res.message, 'success');
+                closeModal('modal-student');
+                loadStudents();
+                loadKPIs();
+            } else {
+                showToast(res.message, 'error');
+            }
+        }
+
+        async function deleteStudent(id) {
+            if (confirm("Delete this student permanently?")) {
+                const res = await apiRequest(`/api/admin/students?id=${id}`, 'DELETE');
+                if (res.success) {
+                    showToast('Student deleted', 'success');
+                    loadStudents();
+                    loadKPIs();
+                }
+            }
+        }
+
+        // ================== Teachers CRUD ==================
+        async function loadTeachers() {
+            const res = await apiRequest('/api/admin/teachers');
+            const tbody = document.getElementById('admin-teachers-tbody');
+            tbody.innerHTML = '';
+            if (res.success && res.teachers) {
+                globalTeachers = res.teachers;
+                res.teachers.forEach(t => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="mono">#${t.id}</td>
+                            <td><strong>${t.name}</strong></td>
+                            <td style="color:var(--text-secondary)">${t.email}</td>
+                            <td>${t.department}</td>
+                            <td>${t.phone || '-'}</td>
+                            <td>
+                                <button onclick='editTeacher(${JSON.stringify(t)})' class="btn btn-secondary btn-sm">Edit</button>
+                                <button onclick="deleteTeacher(${t.id})" class="btn btn-danger btn-sm">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        function openTeacherModal() {
+            document.getElementById('form-teacher-modal').reset();
+            document.getElementById('m-teach-id').value = '0';
+            document.getElementById('modal-teacher-title').innerText = 'Add Faculty Member';
+            openModal('modal-teacher');
+        }
+
+        function editTeacher(t) {
+            document.getElementById('m-teach-id').value = t.id;
+            document.getElementById('m-teach-name').value = t.name;
+            document.getElementById('m-teach-email').value = t.email;
+            document.getElementById('m-teach-dept').value = t.department;
+            document.getElementById('m-teach-phone').value = t.phone || '';
+            document.getElementById('modal-teacher-title').innerText = 'Edit Faculty: ' + t.name;
+            openModal('modal-teacher');
+        }
+
+        async function saveTeacher(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('m-teach-id').value);
+            const payload = {
+                id,
+                name: document.getElementById('m-teach-name').value,
+                email: document.getElementById('m-teach-email').value,
+                department: document.getElementById('m-teach-dept').value,
+                phone: document.getElementById('m-teach-phone').value,
+                password: document.getElementById('m-teach-pass').value || 'teacher123'
+            };
+            const res = await apiRequest('/api/admin/teachers', 'POST', payload);
+            if (res.success) {
+                showToast(res.message, 'success');
+                closeModal('modal-teacher');
+                loadTeachers();
+                loadKPIs();
+            } else {
+                showToast(res.message, 'error');
+            }
+        }
+
+        async function deleteTeacher(id) {
+            if (confirm("Delete this faculty member?")) {
+                const res = await apiRequest(`/api/admin/teachers?id=${id}`, 'DELETE');
+                if (res.success) {
+                    showToast('Faculty deleted', 'success');
+                    loadTeachers();
+                    loadKPIs();
+                }
+            }
+        }
+
+        // ================== Subjects & Classes ==================
+        async function loadSubjects() {
+            const res = await apiRequest('/api/admin/subjects');
+            const tbody = document.getElementById('admin-subjects-tbody');
+            tbody.innerHTML = '';
+            if (res.success && res.subjects) {
+                globalSubjects = res.subjects;
+                res.subjects.forEach(s => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><code class="mono" style="color:var(--primary-light)">${s.code}</code></td>
+                            <td><strong>${s.subjectName}</strong></td>
+                            <td>${s.department}</td>
+                            <td><button onclick="deleteSubject(${s.subjectId})" class="btn btn-danger btn-sm">Delete</button></td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        function openSubjectModal() {
+            openModal('modal-subject');
+        }
+
+        async function saveSubject(e) {
+            e.preventDefault();
+            const payload = {
+                code: document.getElementById('m-sub-code').value,
+                subjectName: document.getElementById('m-sub-name').value,
+                department: document.getElementById('m-sub-dept').value
+            };
+            const res = await apiRequest('/api/admin/subjects', 'POST', payload);
+            if (res.success) {
+                showToast('Subject created', 'success');
+                closeModal('modal-subject');
+                loadSubjects();
+            }
+        }
+
+        async function deleteSubject(id) {
+            if (confirm("Delete subject?")) {
+                const res = await apiRequest(`/api/admin/subjects?id=${id}`, 'DELETE');
+                if (res.success) {
+                    showToast('Subject deleted', 'success');
+                    loadSubjects();
+                }
+            }
+        }
+
+        async function loadClasses() {
+            const res = await apiRequest('/api/admin/classes');
+            const tbody = document.getElementById('admin-classes-tbody');
+            tbody.innerHTML = '';
+            if (res.success && res.classes) {
+                res.classes.forEach(c => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${c.className}</strong> (${c.section})</td>
+                            <td>${c.subjectName || '-'}</td>
+                            <td>${c.teacherName || '-'}</td>
+                            <td>${c.roomNo || 'Room 101'}</td>
+                            <td><button onclick="deleteClass(${c.classId})" class="btn btn-danger btn-sm">Delete</button></td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        function openClassModal() {
+            // Populate teachers & subjects
+            const tSel = document.getElementById('m-cls-teacher');
+            tSel.innerHTML = '';
+            globalTeachers.forEach(t => tSel.innerHTML += `<option value="${t.id}">${t.name} (${t.department})</option>`);
+
+            const sSel = document.getElementById('m-cls-subject');
+            sSel.innerHTML = '';
+            globalSubjects.forEach(s => sSel.innerHTML += `<option value="${s.subjectId}">${s.subjectName} (${s.code})</option>`);
+
+            openModal('modal-class');
+        }
+
+        async function saveClass(e) {
+            e.preventDefault();
+            const payload = {
+                className: document.getElementById('m-cls-name').value,
+                section: document.getElementById('m-cls-sec').value,
+                semester: document.getElementById('m-cls-sem').value,
+                teacherId: document.getElementById('m-cls-teacher').value,
+                subjectId: document.getElementById('m-cls-subject').value,
+                roomNo: document.getElementById('m-cls-room').value
+            };
+            const res = await apiRequest('/api/admin/classes', 'POST', payload);
+            if (res.success) {
+                showToast('Class section created', 'success');
+                closeModal('modal-class');
+                loadClasses();
+                loadKPIs();
+            }
+        }
+
+        async function deleteClass(id) {
+            if (confirm("Delete class?")) {
+                const res = await apiRequest(`/api/admin/classes?id=${id}`, 'DELETE');
+                if (res.success) {
+                    showToast('Class deleted', 'success');
+                    loadClasses();
+                    loadKPIs();
+                }
+            }
+        }
+
+        // ================== Master Attendance Log ==================
+        async function loadMasterAttendance() {
+            const res = await apiRequest('/api/admin/attendance');
+            const tbody = document.getElementById('admin-master-tbody');
+            tbody.innerHTML = '';
+            if (res.success && res.records) {
+                res.records.forEach(r => {
+                    let badgeClass = 'badge-safe';
+                    if (r.status === 'LATE') badgeClass = 'badge-warning';
+                    else if (r.status === 'ABSENT') badgeClass = 'badge-critical';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="mono">${r.date} ${r.timeIn}</td>
+                            <td><strong>${r.studentName}</strong></td>
+                            <td><code class="mono" style="color:var(--primary-light)">${r.rollNo}</code></td>
+                            <td>${r.subjectName || '-'}</td>
+                            <td>${r.className || '-'}</td>
+                            <td><span class="badge ${badgeClass}">${r.status}</span></td>
+                            <td style="font-size:0.75rem; color:var(--text-muted);">${r.ipAddress || '127.0.0.1'}</td>
+                            <td>
+                                <button onclick="deleteAttendanceRecord(${r.attendanceId})" class="btn btn-danger btn-sm">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        async function deleteAttendanceRecord(id) {
+            if (confirm("Delete this attendance record?")) {
+                const res = await apiRequest(`/api/admin/attendance?id=${id}`, 'DELETE');
+                if (res.success) {
+                    showToast('Record deleted', 'success');
+                    loadMasterAttendance();
+                    loadKPIs();
+                }
+            }
+        }
+
+        // ================== Settings & Security Logs ==================
+        async function loadSettings() {
+            const res = await apiRequest('/api/admin/settings');
+            if (res.success && res.settings) {
+                const s = res.settings;
+                if (s.qr_expiry_seconds) document.getElementById('set-expiry').value = s.qr_expiry_seconds;
+                if (s.geofence_enabled) document.getElementById('set-geofence').value = s.geofence_enabled;
+                if (s.campus_latitude) document.getElementById('set-lat').value = s.campus_latitude;
+                if (s.campus_longitude) document.getElementById('set-lon').value = s.campus_longitude;
+                if (s.geofence_radius_meters) document.getElementById('set-radius').value = s.geofence_radius_meters;
+            }
+        }
+
+        async function handleSaveSettings(e) {
+            e.preventDefault();
+            const payload = {
+                qr_expiry_seconds: document.getElementById('set-expiry').value,
+                geofence_enabled: document.getElementById('set-geofence').value,
+                campus_latitude: document.getElementById('set-lat').value,
+                campus_longitude: document.getElementById('set-lon').value,
+                geofence_radius_meters: document.getElementById('set-radius').value
+            };
+            const res = await apiRequest('/api/admin/settings', 'POST', payload);
+            if (res.success) {
+                showToast(res.message, 'success');
+            }
+        }
+
+        async function loadSystemLogs() {
+            const res = await apiRequest('/api/admin/logs');
+            const tbody = document.getElementById('admin-logs-tbody');
+            tbody.innerHTML = '';
+            if (res.success && res.logs) {
+                res.logs.forEach(l => {
+                    let badge = 'badge-info';
+                    if (l.eventType.includes('PROXY')) badge = 'badge-critical';
+                    else if (l.eventType.includes('EXPIRED')) badge = 'badge-warning';
+                    else if (l.eventType.includes('ATTENDANCE')) badge = 'badge-safe';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><span class="badge ${badge}">${l.eventType}</span></td>
+                            <td class="mono" style="font-size:0.8rem;">${l.userEmail || '-'}</td>
+                            <td style="font-size:0.82rem;">${l.details}</td>
+                            <td class="mono" style="font-size:0.75rem; color:var(--text-muted);">${l.timestamp}</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+    </script>
+</body>
+</html>

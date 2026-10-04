@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal | QR Code Attendance</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <a href="index.html" class="nav-brand">
+            <div class="brand-icon">⚡</div>
+            <div class="brand-text">
+                <h1>Student Dashboard</h1>
+                <span>Academic Portal</span>
+            </div>
+        </a>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="user-badge">
+                <div class="user-avatar" id="avatar-initials">S</div>
+                <div style="font-size: 0.85rem;">
+                    <div style="font-weight: 700;" id="user-display-name">Student Name</div>
+                    <div style="font-size: 0.72rem; color: var(--accent-cyan);" id="user-display-roll">CS-000</div>
+                </div>
+            </div>
+            <button onclick="logout()" class="btn btn-outline btn-sm">Log Out</button>
+        </div>
+    </header>
+
+    <div class="container tabs-wrapper">
+        <!-- Dashboard Navigation Tabs -->
+        <div class="tabs-header">
+            <button class="tab-btn active" data-tab="tab-scan">📷 Mark Attendance</button>
+            <button class="tab-btn" data-tab="tab-analytics">📊 Attendance Stats & %</button>
+            <button class="tab-btn" data-tab="tab-history">📜 Attendance Records</button>
+            <button class="tab-btn" data-tab="tab-profile">⚙️ Profile & Settings</button>
+        </div>
+
+        <!-- ==================== TAB 1: MARK ATTENDANCE ==================== -->
+        <div id="tab-scan" class="tab-content active">
+            <div class="grid-2">
+                <!-- Live QR Scanner Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📷 Classroom QR Scanner</h3>
+                        <span class="badge badge-info" id="gps-status-badge">📍 GPS Active</span>
+                    </div>
+
+                    <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.25rem;">
+                        Align the live classroom dynamic QR code inside the viewfinder box.
+                    </p>
+
+                    <!-- Camera select and toggles -->
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                        <select id="camera-select" class="form-control" style="flex: 2;">
+                            <option value="">Default Camera</option>
+                        </select>
+                        <button id="btn-toggle-scan" class="btn btn-primary" onclick="toggleCamera()" style="flex: 1;">
+                            📷 Start Camera
+                        </button>
+                    </div>
+
+                    <!-- Scanner Viewfinder Box -->
+                    <div class="scanner-container">
+                        <div class="laser-scanner" style="display: none;"></div>
+                        <div id="qr-reader" class="scanner-viewfinder">
+                            <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📷</div>
+                                <p style="font-size: 0.85rem;">Camera is idle. Click "Start Camera" to scan.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alternative Scan Options -->
+                    <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+                        <label class="btn btn-secondary btn-sm" style="cursor: pointer;">
+                            📁 Upload QR Image
+                            <input type="file" id="qr-file-input" accept="image/*" style="display: none;" onchange="handleFileQR(event)">
+                        </label>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">or test with one-click</span>
+                    </div>
+
+                    <!-- Fast Desktop Simulator (Crucial for test environments without webcams) -->
+                    <div style="margin-top: 1.25rem; padding: 1rem; background: rgba(0,0,0,0.3); border-radius: var(--radius-sm); border: 1px dashed var(--border-light);">
+                        <div style="font-size: 0.82rem; font-weight: 600; color: var(--primary-light); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+                            <span>⚡</span> Quick Desktop Test Scan (No Camera Needed)
+                        </div>
+                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                            If running on a desktop machine without a webcam, select an active class to test the anti-proxy verification pipeline:
+                        </p>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <select id="quick-class-select" class="form-control" style="font-size: 0.82rem;">
+                                <option value="1">Java Advanced Programming (Lab 302)</option>
+                                <option value="2">Advanced Database Systems (Hall B)</option>
+                                <option value="3">Full Stack Web Development (Lab 201)</option>
+                                <option value="4">Network Security & Cryptography (Lab 105)</option>
+                            </select>
+                            <button onclick="simulateDesktopScan()" class="btn btn-success btn-sm">
+                                Submit Scan ➔
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Last Attendance Slip & Real-time Status Card -->
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div class="card-header">
+                            <h3 class="card-title">🎫 Digital Attendance Slip</h3>
+                            <span class="badge badge-safe">Official Verification</span>
+                        </div>
+
+                        <div id="attendance-slip-box" style="padding: 1.5rem; background: var(--bg-surface-elevated); border-radius: var(--radius-md); border: 1px solid var(--border-color); text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎉</div>
+                            <h4 id="slip-title" style="font-size: 1.15rem; font-weight: 700; color: #fff;">No Scans Yet Today</h4>
+                            <p id="slip-desc" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.35rem;">
+                                Once you successfully scan a classroom QR code, your verifiable digital attendance receipt will appear here.
+                            </p>
+                            <div id="slip-meta" style="display: none; margin-top: 1.25rem; text-align: left; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.82rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+                                    <span style="color: var(--text-muted);">Class:</span>
+                                    <strong id="slip-class" style="color: #fff;">-</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+                                    <span style="color: var(--text-muted);">Subject:</span>
+                                    <strong id="slip-subject" style="color: #fff;">-</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+                                    <span style="color: var(--text-muted);">Timestamp:</span>
+                                    <strong id="slip-time" class="mono" style="color: var(--primary-light);">-</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-muted);">Verification Status:</span>
+                                    <span class="badge badge-safe">VERIFIED & RECORDED</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Geolocation / Anti-Proxy Status Banner -->
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: var(--radius-md);">
+                        <div style="font-size: 0.85rem; font-weight: 600; color: var(--success); display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🛡️</span> Institutional Anti-Proxy Active
+                        </div>
+                        <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.3rem;">
+                            Device fingerprinting and geolocation tracking are enforced to prevent remote or duplicate scans.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 2: ATTENDANCE STATS & % ==================== -->
+        <div id="tab-analytics" class="tab-content">
+            <!-- Overall Metric Summary -->
+            <div class="grid-4" style="margin-bottom: 1.5rem;">
+                <div class="stat-card">
+                    <div class="stat-icon primary">📚</div>
+                    <div class="stat-details">
+                        <div class="stat-val" id="stat-total-conducted">0</div>
+                        <div class="stat-label">Total Conducted</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon success">✅</div>
+                    <div class="stat-details">
+                        <div class="stat-val" id="stat-total-attended">0</div>
+                        <div class="stat-label">Attended Lectures</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon warning">⏰</div>
+                    <div class="stat-details">
+                        <div class="stat-val" id="stat-total-late">0</div>
+                        <div class="stat-label">Late Arrivals</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon purple">🎯</div>
+                    <div class="stat-details">
+                        <div class="stat-val" id="stat-percentage">0%</div>
+                        <div class="stat-label">Overall Percentage</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject-wise Breakdown Table & Radial Visual -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📊 Subject-wise Attendance Percentage</h3>
+                    <span id="exam-eligibility-badge" class="badge badge-safe">Eligible for Exams</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Subject Code</th>
+                                <th>Subject Name</th>
+                                <th>Attended / Total</th>
+                                <th>Percentage (%)</th>
+                                <th>Status Metric</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subject-stats-tbody">
+                            <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Loading subjects...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 3: ATTENDANCE RECORDS HISTORY ==================== -->
+        <div id="tab-history" class="tab-content">
+            <div class="card">
+                <div class="page-header" style="margin-bottom: 1.25rem;">
+                    <div>
+                        <h3 class="card-title">📜 Personal Attendance History</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">Complete historical audit log of all recorded presences</p>
+                    </div>
+                    <button onclick="exportTableToCSV('student-history-table', 'my_attendance_records.csv')" class="btn btn-secondary btn-sm">
+                        📥 Export to CSV
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table" id="student-history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time In</th>
+                                <th>Subject</th>
+                                <th>Class</th>
+                                <th>Status</th>
+                                <th>Device / IP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-history-tbody">
+                            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading records...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 4: PROFILE & SETTINGS ==================== -->
+        <div id="tab-profile" class="tab-content">
+            <div class="grid-2">
+                <!-- Personal Details Update (Section 3.2.2) -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">👤 Update Personal Details</h3>
+                        <span class="badge badge-info">Section 3.2.2</span>
+                    </div>
+
+                    <form id="form-update-profile" onsubmit="handleUpdateProfile(event)">
+                        <div class="form-group">
+                            <label class="form-label" for="prof-name">Full Name</label>
+                            <input type="text" id="prof-name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="prof-roll">Roll Number (Read-only)</label>
+                            <input type="text" id="prof-roll" class="form-control" readonly style="opacity: 0.6;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="prof-email">Academic Email (Read-only)</label>
+                            <input type="email" id="prof-email" class="form-control" readonly style="opacity: 0.6;">
+                        </div>
+                        <div class="grid-2" style="gap: 0.75rem;">
+                            <div class="form-group">
+                                <label class="form-label" for="prof-dept">Department</label>
+                                <input type="text" id="prof-dept" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="prof-sem">Semester</label>
+                                <input type="number" id="prof-sem" class="form-control" min="1" max="12" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="prof-phone">Phone Number</label>
+                            <input type="tel" id="prof-phone" class="form-control">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            Save Profile Changes
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Security & Delete Profile (Section 3.2.2) -->
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <!-- Change Password -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🔑 Change Password</h3>
+                        </div>
+                        <form id="form-change-password" onsubmit="handleChangePassword(event)">
+                            <div class="form-group">
+                                <label class="form-label" for="old-pass">Current Password</label>
+                                <input type="password" id="old-pass" class="form-control" placeholder="••••••••" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="new-pass">New Password</label>
+                                <input type="password" id="new-pass" class="form-control" placeholder="Minimum 6 characters" required>
+                            </div>
+                            <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                                Update Password
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Delete Profile Card (Section 3.2.2 Explicit Requirement) -->
+                    <div class="card" style="border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.03);">
+                        <div class="card-header">
+                            <h3 class="card-title" style="color: var(--danger);">⚠️ Danger Zone</h3>
+                            <span class="badge badge-danger">Section 3.2.2</span>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+                            As specified in the system design, students can delete their registration profile. All associated attendance records and account data will be permanently wiped.
+                        </p>
+                        <button onclick="confirmDeleteProfile()" class="btn btn-danger" style="width: 100%;">
+                            Delete My Profile Permanently
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/html5-qrcode.min.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/scanner.js"></script>
+    <script>
+        const user = requireAuth('STUDENT');
+        if (user) {
+            document.getElementById('user-display-name').innerText = user.name;
+            document.getElementById('avatar-initials').innerText = user.name.charAt(0);
+            initTabs();
+            loadStudentDashboard();
+            initQRScanner(onAttendanceMarked);
+        }
+
+        async function loadStudentDashboard() {
+            // 1. Fetch Profile
+            const profRes = await apiRequest(`/api/student/profile?studentId=${user.id}`);
+            if (profRes.success && profRes.profile) {
+                const p = profRes.profile;
+                document.getElementById('user-display-roll').innerText = p.rollNo || 'CS';
+                document.getElementById('prof-name').value = p.name || '';
+                document.getElementById('prof-roll').value = p.rollNo || '';
+                document.getElementById('prof-email').value = p.email || '';
+                document.getElementById('prof-dept').value = p.department || '';
+                document.getElementById('prof-sem').value = p.semester || 1;
+                document.getElementById('prof-phone').value = p.phone || '';
+            }
+
+            // 2. Fetch Stats & Percentages
+            const statsRes = await apiRequest(`/api/student/stats?studentId=${user.id}`);
+            if (statsRes.success && statsRes.stats) {
+                const s = statsRes.stats;
+                document.getElementById('stat-total-conducted').innerText = s.totalLecturesConducted;
+                document.getElementById('stat-total-attended').innerText = s.totalAttended;
+                document.getElementById('stat-total-late').innerText = s.lateCount;
+                document.getElementById('stat-percentage').innerText = s.overallPercentage + '%';
+
+                const badge = document.getElementById('exam-eligibility-badge');
+                if (s.isEligible) {
+                    badge.className = 'badge badge-safe';
+                    badge.innerText = 'Eligible for Exams (' + s.overallPercentage + '% >= 75%)';
+                } else {
+                    badge.className = 'badge badge-critical';
+                    badge.innerText = 'Attendance Low (' + s.overallPercentage + '% < 75%)';
+                }
+
+                // Render Subject stats table
+                const tbody = document.getElementById('subject-stats-tbody');
+                tbody.innerHTML = '';
+                if (s.subjectStats && s.subjectStats.length) {
+                    s.subjectStats.forEach(sub => {
+                        let badgeClass = 'badge-safe';
+                        if (sub.statusBadge === 'Warning') badgeClass = 'badge-warning';
+                        else if (sub.statusBadge === 'Critical') badgeClass = 'badge-critical';
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><code class="mono" style="color:var(--primary-light)">${sub.subjectCode}</code></td>
+                                <td><strong>${sub.subjectName}</strong></td>
+                                <td>${sub.attended} / ${sub.total} classes</td>
+                                <td>
+                                    <div style="display:flex; align-items:center; gap:0.75rem;">
+                                        <div style="flex:1; height:8px; background:rgba(255,255,255,0.08); border-radius:4px; overflow:hidden;">
+                                            <div style="width:${sub.percentage}%; height:100%; background: ${sub.percentage >= 75 ? 'var(--success)' : (sub.percentage >= 65 ? 'var(--warning)' : 'var(--danger)')}"></div>
+                                        </div>
+                                        <span class="mono" style="font-weight:700;">${sub.percentage}%</span>
+                                    </div>
+                                </td>
+                                <td><span class="badge ${badgeClass}">${sub.statusBadge}</span></td>
+                            </tr>
+                        `;
+                    });
+                }
+            }
+
+            // 3. Fetch History
+            loadAttendanceHistory();
+        }
+
+        async function loadAttendanceHistory() {
+            const histRes = await apiRequest(`/api/student/attendance?studentId=${user.id}`);
+            const tbody = document.getElementById('student-history-tbody');
+            tbody.innerHTML = '';
+            if (histRes.success && histRes.records && histRes.records.length) {
+                histRes.records.forEach(r => {
+                    let badgeClass = 'badge-safe';
+                    if (r.status === 'LATE') badgeClass = 'badge-warning';
+                    else if (r.status === 'ABSENT') badgeClass = 'badge-critical';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="mono">${r.date}</td>
+                            <td class="mono" style="color:var(--primary-light)">${r.timeIn}</td>
+                            <td><strong>${r.subjectName || 'Subject'}</strong> (${r.subjectCode || ''})</td>
+                            <td>${r.className || 'Class'}</td>
+                            <td><span class="badge ${badgeClass}">${r.status}</span></td>
+                            <td style="font-size:0.78rem; color:var(--text-muted);">${r.deviceInfo || r.ipAddress || 'Verified Mobile'}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:2rem;">No attendance records found yet.</td></tr>';
+            }
+        }
+
+        function toggleCamera() {
+            if (isScannerRunning) {
+                stopScanner();
+            } else {
+                startScanner(onAttendanceMarked);
+            }
+        }
+
+        function handleFileQR(e) {
+            const file = e.target.files[0];
+            if (file) {
+                scanQRFromFile(file, onAttendanceMarked);
+            }
+        }
+
+        async function simulateDesktopScan() {
+            const classSelect = document.getElementById('quick-class-select');
+            const classId = classSelect.value;
+            showToast('Querying active classroom session token...', 'info');
+
+            // Fetch active QR or trigger creation
+            let qrRes = await apiRequest(`/api/teacher/active-qr?classId=${classId}`);
+            let qrPayload = null;
+
+            if (qrRes.success && qrRes.qr) {
+                qrPayload = qrRes.qr.qrData;
+            } else {
+                // Auto start demo session on the fly for ease of evaluation
+                const startRes = await apiRequest('/api/teacher/start-session', 'POST', {
+                    classId: parseInt(classId),
+                    subjectId: parseInt(classId),
+                    teacherId: 1
+                });
+                if (startRes.success && startRes.qr) {
+                    qrPayload = startRes.qr.qrData;
+                }
+            }
+
+            if (qrPayload) {
+                await handleScannedQRCode(qrPayload, onAttendanceMarked);
+            } else {
+                showToast('Unable to acquire class QR token.', 'error');
+            }
+        }
+
+        function onAttendanceMarked(result) {
+            loadStudentDashboard();
+            const slipBox = document.getElementById('attendance-slip-box');
+            const metaBox = document.getElementById('slip-meta');
+
+            document.getElementById('slip-title').innerText = 'Attendance Marked Successfully!';
+            document.getElementById('slip-title').style.color = 'var(--success)';
+            document.getElementById('slip-desc').innerText = 'Timestamp confirmed and cryptographically validated by institutional server.';
+
+            metaBox.style.display = 'block';
+            if (result.details) {
+                document.getElementById('slip-class').innerText = result.details.className || 'Class';
+                document.getElementById('slip-subject').innerText = result.details.subjectName || 'Subject';
+            }
+            document.getElementById('slip-time').innerText = (result.date || '') + ' ' + (result.time || '');
+        }
+
+        async function handleUpdateProfile(e) {
+            e.preventDefault();
+            const payload = {
+                studentId: user.id,
+                name: document.getElementById('prof-name').value,
+                department: document.getElementById('prof-dept').value,
+                semester: document.getElementById('prof-sem').value,
+                phone: document.getElementById('prof-phone').value
+            };
+            const res = await apiRequest('/api/student/profile', 'POST', payload);
+            if (res.success) {
+                showToast(res.message, 'success');
+                user.name = payload.name;
+                setCurrentUser(user);
+                document.getElementById('user-display-name').innerText = user.name;
+            } else {
+                showToast(res.message, 'error');
+            }
+        }
+
+        async function handleChangePassword(e) {
+            e.preventDefault();
+            const oldPassword = document.getElementById('old-pass').value;
+            const newPassword = document.getElementById('new-pass').value;
+
+            const res = await apiRequest('/api/auth/change-password', 'POST', {
+                userId: user.id,
+                role: 'STUDENT',
+                oldPassword,
+                newPassword
+            });
+            if (res.success) {
+                showToast(res.message, 'success');
+                document.getElementById('form-change-password').reset();
+            } else {
+                showToast(res.message, 'error');
+            }
+        }
+
+        async function confirmDeleteProfile() {
+            if (confirm("Are you sure you want to permanently DELETE your student profile? This action CANNOT be undone.")) {
+                const res = await apiRequest('/api/student/delete-profile', 'POST', { studentId: user.id });
+                if (res.success) {
+                    alert("Your profile has been deleted. You will now be redirected to the home screen.");
+                    logout();
+                } else {
+                    showToast(res.message || "Failed to delete profile.", "error");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
