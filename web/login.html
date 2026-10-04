@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication | QR Code Attendance System</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+</head>
+<body style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem 1rem;">
+
+    <div class="card" style="width: 100%; max-width: 480px; padding: 2.25rem;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div class="brand-icon" style="margin: 0 auto 1rem; width: 50px; height: 50px;">⚡</div>
+            <h2 style="font-size: 1.6rem; font-weight: 800;">Academic Identity Portal</h2>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">Sign in or register to access attendance services</p>
+        </div>
+
+        <!-- Top Navigation Tabs: Login / Register / Forgot Password -->
+        <div class="tabs-header" style="justify-content: center; margin-bottom: 1.5rem;">
+            <button class="tab-btn active" data-tab="tab-login">Sign In</button>
+            <button class="tab-btn" data-tab="tab-register">Student Register</button>
+            <button class="tab-btn" data-tab="tab-forgot">Forgot Password</button>
+        </div>
+
+        <!-- TAB 1: LOGIN -->
+        <div id="tab-login" class="tab-content active">
+            <!-- Role Selector -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; background: rgba(0,0,0,0.25); padding: 0.35rem; border-radius: var(--radius-sm);">
+                <button type="button" class="btn btn-sm btn-primary role-toggle" data-role="STUDENT" style="flex:1;">🎓 Student</button>
+                <button type="button" class="btn btn-sm btn-outline role-toggle" data-role="TEACHER" style="flex:1;">👨‍🏫 Teacher</button>
+                <button type="button" class="btn btn-sm btn-outline role-toggle" data-role="ADMIN" style="flex:1;">⚙️ Admin</button>
+            </div>
+
+            <form id="form-login" onsubmit="handleLogin(event)">
+                <input type="hidden" id="login-role" value="STUDENT">
+                
+                <div class="form-group">
+                    <label class="form-label" for="login-email">Academic Email</label>
+                    <input type="email" id="login-email" class="form-control" placeholder="user@attendance.edu" required value="alex@attendance.edu">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="login-password">Password</label>
+                    <input type="password" id="login-password" class="form-control" placeholder="••••••••" required value="student123">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;" id="btn-login-submit">
+                    Sign In as Student ➔
+                </button>
+            </form>
+
+            <!-- Quick Demo Auto-Fill Pill Buttons -->
+            <div style="margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color); text-align: center;">
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                    Quick Demo Switcher
+                </div>
+                <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn btn-secondary btn-sm" onclick="fillDemo('alex@attendance.edu', 'student123', 'STUDENT')">🎓 Student</button>
+                    <button class="btn btn-secondary btn-sm" onclick="fillDemo('turing@attendance.edu', 'teacher123', 'TEACHER')">👨‍🏫 Teacher</button>
+                    <button class="btn btn-secondary btn-sm" onclick="fillDemo('admin@attendance.edu', 'admin123', 'ADMIN')">⚙️ Admin</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: REGISTER STUDENT -->
+        <div id="tab-register" class="tab-content">
+            <form id="form-register" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label class="form-label" for="reg-name">Full Name</label>
+                    <input type="text" id="reg-name" class="form-control" placeholder="e.g. Maya Lin" required>
+                </div>
+
+                <div class="grid-2" style="gap: 0.75rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="reg-roll">Roll Number</label>
+                        <input type="text" id="reg-roll" class="form-control" placeholder="CS-2024-099" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="reg-sem">Semester</label>
+                        <select id="reg-sem" class="form-control">
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                            <option value="4">Semester 4</option>
+                            <option value="5">Semester 5</option>
+                            <option value="6" selected>Semester 6</option>
+                            <option value="7">Semester 7</option>
+                            <option value="8">Semester 8</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="reg-dept">Department</label>
+                    <select id="reg-dept" class="form-control">
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Information Technology">Information Technology</option>
+                        <option value="Electronics & Communication">Electronics & Communication</option>
+                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                    </select>
+                </div>
+
+                <div class="grid-2" style="gap: 0.75rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="reg-email">Email</label>
+                        <input type="email" id="reg-email" class="form-control" placeholder="maya@attendance.edu" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="reg-phone">Phone</label>
+                        <input type="tel" id="reg-phone" class="form-control" placeholder="+1 555-0199">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="reg-password">Password</label>
+                    <input type="password" id="reg-password" class="form-control" placeholder="Minimum 6 characters" required>
+                </div>
+
+                <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 0.5rem;">
+                    Create Student Account ➔
+                </button>
+            </form>
+        </div>
+
+        <!-- TAB 3: FORGOT PASSWORD -->
+        <div id="tab-forgot" class="tab-content">
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+                Enter your registered academic email and new password to recover access.
+            </p>
+            <form id="form-forgot" onsubmit="handleForgotPassword(event)">
+                <div class="form-group">
+                    <label class="form-label">Account Role</label>
+                    <select id="forgot-role" class="form-control">
+                        <option value="STUDENT">Student</option>
+                        <option value="TEACHER">Teacher / Faculty</option>
+                        <option value="ADMIN">Administrator</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="forgot-email">Registered Email</label>
+                    <input type="email" id="forgot-email" class="form-control" placeholder="user@attendance.edu" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="forgot-new-pass">New Password</label>
+                    <input type="password" id="forgot-new-pass" class="form-control" placeholder="Enter new password" required>
+                </div>
+
+                <button type="submit" class="btn btn-warning" style="width: 100%; margin-top: 0.5rem;">
+                    Reset & Update Password ➔
+                </button>
+            </form>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="index.html" style="color: var(--text-secondary); font-size: 0.85rem; text-decoration: none;">
+                &larr; Back to Home Overview
+            </a>
+        </div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        initTabs();
+
+        // Role toggling for login
+        const roleBtns = document.querySelectorAll('.role-toggle');
+        const roleInput = document.getElementById('login-role');
+        const submitBtn = document.getElementById('btn-login-submit');
+
+        roleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                roleBtns.forEach(b => {
+                    b.classList.remove('btn-primary', 'btn-success', 'btn-secondary');
+                    b.classList.add('btn-outline');
+                });
+                const role = btn.getAttribute('data-role');
+                roleInput.value = role;
+
+                if (role === 'STUDENT') {
+                    btn.className = 'btn btn-sm btn-primary role-toggle';
+                    submitBtn.className = 'btn btn-primary';
+                    submitBtn.innerText = 'Sign In as Student ➔';
+                } else if (role === 'TEACHER') {
+                    btn.className = 'btn btn-sm btn-success role-toggle';
+                    submitBtn.className = 'btn btn-success';
+                    submitBtn.innerText = 'Sign In as Teacher ➔';
+                } else {
+                    btn.className = 'btn btn-sm btn-secondary role-toggle';
+                    submitBtn.className = 'btn btn-secondary';
+                    submitBtn.innerText = 'Sign In as Admin ➔';
+                }
+            });
+        });
+
+        function fillDemo(email, pass, role) {
+            document.getElementById('login-email').value = email;
+            document.getElementById('login-password').value = pass;
+            const targetBtn = document.querySelector(`.role-toggle[data-role="${role}"]`);
+            if (targetBtn) targetBtn.click();
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const role = roleInput.value;
+
+            showToast('Verifying credentials...', 'info');
+            const res = await apiRequest('/api/auth/login', 'POST', { email, password, role });
+            if (res.success) {
+                setCurrentUser(res.user);
+                showToast('Login successful! Redirecting...', 'success');
+                setTimeout(() => {
+                    if (role === 'STUDENT') window.location.href = 'student.html';
+                    else if (role === 'TEACHER') window.location.href = 'teacher.html';
+                    else if (role === 'ADMIN') window.location.href = 'admin.html';
+                }, 400);
+            } else {
+                showToast(res.message || 'Login failed', 'error');
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('reg-name').value,
+                rollNo: document.getElementById('reg-roll').value,
+                department: document.getElementById('reg-dept').value,
+                semester: document.getElementById('reg-sem').value,
+                email: document.getElementById('reg-email').value,
+                phone: document.getElementById('reg-phone').value,
+                password: document.getElementById('reg-password').value
+            };
+
+            showToast('Registering student...', 'info');
+            const res = await apiRequest('/api/auth/register', 'POST', data);
+            if (res.success) {
+                showToast(res.message, 'success');
+                // Switch to login tab and prefill
+                document.querySelector('.tab-btn[data-tab="tab-login"]').click();
+                fillDemo(data.email, data.password, 'STUDENT');
+            } else {
+                showToast(res.message || 'Registration failed', 'error');
+            }
+        }
+
+        async function handleForgotPassword(e) {
+            e.preventDefault();
+            const role = document.getElementById('forgot-role').value;
+            const email = document.getElementById('forgot-email').value;
+            const newPassword = document.getElementById('forgot-new-pass').value;
+
+            showToast('Processing password reset...', 'info');
+            const res = await apiRequest('/api/auth/forgot-password', 'POST', { role, email, newPassword });
+            if (res.success) {
+                showToast(res.message, 'success');
+                document.querySelector('.tab-btn[data-tab="tab-login"]').click();
+                fillDemo(email, newPassword, role);
+            } else {
+                showToast(res.message || 'Reset failed', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

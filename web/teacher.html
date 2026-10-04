@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Portal | QR Code Attendance</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👨‍🏫</text></svg>">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <a href="index.html" class="nav-brand">
+            <div class="brand-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">⚡</div>
+            <div class="brand-text">
+                <h1>Faculty Portal</h1>
+                <span>Lecture & Attendance Control</span>
+            </div>
+        </a>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="user-badge">
+                <div class="user-avatar" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);" id="teacher-avatar">T</div>
+                <div style="font-size: 0.85rem;">
+                    <div style="font-weight: 700;" id="teacher-name">Dr. Alan Turing</div>
+                    <div style="font-size: 0.72rem; color: var(--success);" id="teacher-dept">Computer Science</div>
+                </div>
+            </div>
+            <button onclick="logout()" class="btn btn-outline btn-sm">Log Out</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Top Class Session Selector Toolbar -->
+        <div class="card" style="margin-bottom: 2rem; padding: 1.25rem 1.75rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 280px;">
+                    <label class="form-label" style="margin: 0; white-space: nowrap; font-size: 0.9rem;">Select Class:</label>
+                    <select id="teacher-class-select" class="form-control" onchange="onClassSelected()">
+                        <option value="">Loading assigned classes...</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <button id="btn-start-session" onclick="startOrRefreshQRSession()" class="btn btn-success">
+                        ▶️ Start Dynamic QR Session
+                    </button>
+                    <button onclick="toggleProjectorMode()" class="btn btn-outline" id="btn-projector">
+                        🖥️ Fullscreen Projector Mode
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2" style="align-items: start;">
+            <!-- LEFT: Dynamic QR Presentation Box -->
+            <div class="card" id="qr-display-panel">
+                <div class="card-header">
+                    <h3 class="card-title">📡 Dynamic Session QR Code</h3>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span class="pulse-indicator"></span>
+                        <span id="qr-session-status" style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Session Idle</span>
+                    </div>
+                </div>
+
+                <div class="qr-present-box" id="qr-container-box">
+                    <div id="qr-placeholder" style="color: var(--text-muted); padding: 3rem 1rem;">
+                        <div style="font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.6;">📱</div>
+                        <h4>No Active QR Session</h4>
+                        <p style="font-size: 0.85rem; margin-top: 0.35rem; max-width: 320px;">
+                            Click "Start Dynamic QR Session" above to broadcast rotating tokens for this class.
+                        </p>
+                    </div>
+
+                    <div id="qr-canvas-holder" class="qr-canvas-wrapper" style="display: none;">
+                        <div id="qrcode"></div>
+                    </div>
+
+                    <div id="qr-timer-details" style="display: none; width: 100%; max-width: 340px; margin-top: 1rem;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem;">
+                            <span style="color: var(--text-secondary);">Token Expiry Countdown:</span>
+                            <span class="mono" id="timer-counter" style="color: var(--primary-light); font-weight: 700;">30s</span>
+                        </div>
+                        <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+                            <div id="timer-progress-bar" style="width: 100%; height: 100%; background: var(--primary-light); transition: width 1s linear;"></div>
+                        </div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.6rem;">
+                            🔒 Auto-rotates token to prevent screenshots & remote proxy scans
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session Metadata Card -->
+                <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-secondary); background: rgba(0,0,0,0.2); padding: 0.85rem 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                    <div>Room: <strong id="session-room" style="color: #fff;">-</strong></div>
+                    <div>Subject Code: <strong id="session-subject-code" style="color: var(--primary-light);">-</strong></div>
+                    <div>Anti-Proxy GPS: <strong style="color: var(--success);">Campus Geofence Enforced</strong></div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Real-Time Incoming Attendance Feed -->
+            <div class="card">
+                <div class="page-header" style="margin-bottom: 1rem;">
+                    <div>
+                        <h3 class="card-title">👥 Real-Time Attendance Stream</h3>
+                        <p style="font-size: 0.82rem; color: var(--text-secondary);">Live feed of students marking attendance right now</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div class="badge badge-safe" style="font-size: 0.85rem; padding: 0.4rem 0.85rem;">
+                            Present: <strong id="live-present-count" style="margin-left: 0.25rem;">0</strong>
+                        </div>
+                        <button onclick="exportTableToCSV('teacher-live-table', 'class_attendance_sheet.csv')" class="btn btn-secondary btn-sm">
+                            📥 Export CSV
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+                    <table class="table" id="teacher-live-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Roll Number</th>
+                                <th>Time In</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-live-tbody">
+                            <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">No students scanned in yet for this session.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Manual Attendance Add Bar -->
+                <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                        ✏️ Manual Attendance Override (Add Student)
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <select id="manual-student-select" class="form-control" style="flex: 2; min-width: 180px;">
+                            <option value="">Select Student...</option>
+                        </select>
+                        <select id="manual-status-select" class="form-control" style="flex: 1; min-width: 110px;">
+                            <option value="PRESENT">Present</option>
+                            <option value="LATE">Late</option>
+                            <option value="ABSENT">Absent</option>
+                        </select>
+                        <button onclick="submitManualAttendance()" class="btn btn-primary btn-sm">
+                            Record Override
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Projector Modal -->
+    <div id="projector-modal" class="modal-overlay" onclick="toggleProjectorMode()">
+        <div style="text-align: center; color: #fff; max-width: 600px;" onclick="event.stopPropagation()">
+            <h2 id="proj-class-title" style="font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem;">Class Name</h2>
+            <p style="color: var(--primary-light); font-size: 1.1rem; margin-bottom: 1.5rem;">Scan using your Student Portal to record attendance</p>
+
+            <div style="background: #ffffff; padding: 25px; border-radius: 20px; display: inline-block; box-shadow: 0 0 60px rgba(56, 189, 248, 0.6); margin-bottom: 1.5rem;">
+                <div id="proj-qrcode"></div>
+            </div>
+
+            <div style="font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 1.5rem;">
+                Refreshing in: <span class="mono" id="proj-timer" style="color: var(--accent-cyan);">30s</span>
+            </div>
+
+            <button onclick="toggleProjectorMode()" class="btn btn-secondary btn-lg">
+                ✕ Exit Projector View (or click outside)
+            </button>
+        </div>
+    </div>
+
+    <script src="assets/js/qrcode.min.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script>
+        const teacher = requireAuth('TEACHER');
+        let currentClasses = [];
+        let selectedClass = null;
+        let qrCodeInstance = null;
+        let projQrCodeInstance = null;
+        let sessionTimer = null;
+        let refreshSeconds = 30;
+        let remainingSeconds = 30;
+        let livePollInterval = null;
+
+        if (teacher) {
+            document.getElementById('teacher-name').innerText = teacher.name;
+            document.getElementById('teacher-dept').innerText = teacher.department || 'Faculty';
+            document.getElementById('teacher-avatar').innerText = teacher.name.charAt(0);
+            loadTeacherClasses();
+            loadAllStudentsForManual();
+        }
+
+        async function loadTeacherClasses() {
+            const res = await apiRequest(`/api/teacher/classes?teacherId=${teacher.id}`);
+            const select = document.getElementById('teacher-class-select');
+            select.innerHTML = '';
+            if (res.success && res.classes && res.classes.length) {
+                currentClasses = res.classes;
+                res.classes.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.classId;
+                    opt.text = `${c.className} (${c.section}) - ${c.subjectCode || ''}`;
+                    select.appendChild(opt);
+                });
+                onClassSelected();
+            } else {
+                select.innerHTML = '<option value="">No assigned classes found</option>';
+            }
+        }
+
+        async function loadAllStudentsForManual() {
+            const res = await apiRequest('/api/admin/students');
+            const select = document.getElementById('manual-student-select');
+            if (res.success && res.students) {
+                select.innerHTML = '<option value="">Select Student...</option>';
+                res.students.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.text = `${s.name} (${s.rollNo}) - Sem ${s.semester}`;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
+        function onClassSelected() {
+            const classId = parseInt(document.getElementById('teacher-class-select').value);
+            selectedClass = currentClasses.find(c => c.classId === classId);
+            if (selectedClass) {
+                document.getElementById('session-room').innerText = selectedClass.roomNo || 'Room 101';
+                document.getElementById('session-subject-code').innerText = selectedClass.subjectCode || 'CS601';
+                document.getElementById('proj-class-title').innerText = selectedClass.className;
+                loadLiveAttendance();
+            }
+        }
+
+        async function startOrRefreshQRSession() {
+            if (!selectedClass) {
+                showToast('Please select a class first.', 'warning');
+                return;
+            }
+
+            const res = await apiRequest('/api/teacher/start-session', 'POST', {
+                classId: selectedClass.classId,
+                subjectId: selectedClass.subjectId,
+                teacherId: teacher.id
+            });
+
+            if (res.success && res.qr) {
+                renderQRCode(res.qr.qrData);
+                refreshSeconds = res.expirySeconds || 30;
+                remainingSeconds = refreshSeconds;
+                startCountdownTimer();
+
+                document.getElementById('qr-session-status').innerText = 'Session Active (Rotating)';
+                document.getElementById('qr-session-status').style.color = 'var(--success)';
+                document.getElementById('btn-start-session').innerHTML = '🔄 Force Refresh QR';
+
+                // Start polling for live attendance
+                if (livePollInterval) clearInterval(livePollInterval);
+                livePollInterval = setInterval(loadLiveAttendance, 2500);
+
+                showToast('Dynamic QR Code generated! Live tracking active.', 'success');
+            } else {
+                showToast(res.message || 'Failed to start session.', 'error');
+            }
+        }
+
+        function renderQRCode(payload) {
+            document.getElementById('qr-placeholder').style.display = 'none';
+            document.getElementById('qr-canvas-holder').style.display = 'block';
+            document.getElementById('qr-timer-details').style.display = 'block';
+
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            qrCodeInstance = new QRCode(qrContainer, {
+                text: payload,
+                width: 240,
+                height: 240,
+                colorDark: '#0b0f19',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Projector mode QR
+            const projContainer = document.getElementById('proj-qrcode');
+            projContainer.innerHTML = '';
+            projQrCodeInstance = new QRCode(projContainer, {
+                text: payload,
+                width: 320,
+                height: 320,
+                colorDark: '#0b0f19',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        function startCountdownTimer() {
+            if (sessionTimer) clearInterval(sessionTimer);
+            updateTimerDisplay();
+
+            sessionTimer = setInterval(() => {
+                remainingSeconds--;
+                updateTimerDisplay();
+
+                if (remainingSeconds <= 0) {
+                    // Auto-refresh dynamic QR code
+                    startOrRefreshQRSession();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const pct = Math.max(0, (remainingSeconds / refreshSeconds) * 100);
+            document.getElementById('timer-counter').innerText = remainingSeconds + 's';
+            document.getElementById('timer-progress-bar').style.width = pct + '%';
+            document.getElementById('proj-timer').innerText = remainingSeconds + 's';
+        }
+
+        let previousAttendanceCount = 0;
+
+        async function loadLiveAttendance() {
+            if (!selectedClass) return;
+            const res = await apiRequest(`/api/teacher/live-attendance?classId=${selectedClass.classId}`);
+            const tbody = document.getElementById('teacher-live-tbody');
+
+            if (res.success && res.records) {
+                const count = res.records.length;
+                document.getElementById('live-present-count').innerText = count;
+
+                // If new student scanned, play chime
+                if (count > previousAttendanceCount && previousAttendanceCount > 0) {
+                    playChime(true);
+                    showToast('New student scanned in!', 'info');
+                }
+                previousAttendanceCount = count;
+
+                if (count === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">No students marked present yet for this session.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                res.records.forEach(r => {
+                    let badgeClass = 'badge-safe';
+                    if (r.status === 'LATE') badgeClass = 'badge-warning';
+                    else if (r.status === 'ABSENT') badgeClass = 'badge-critical';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${r.studentName}</strong></td>
+                            <td><code class="mono" style="color:var(--primary-light)">${r.rollNo}</code></td>
+                            <td class="mono">${r.timeIn}</td>
+                            <td><span class="badge ${badgeClass}">${r.status}</span></td>
+                            <td>
+                                <button onclick="quickUpdateStatus(${r.attendanceId}, 'LATE')" class="btn btn-secondary btn-sm" title="Mark Late">⏰</button>
+                                <button onclick="quickUpdateStatus(${r.attendanceId}, 'PRESENT')" class="btn btn-secondary btn-sm" title="Mark Present">✅</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        async function quickUpdateStatus(attId, status) {
+            const res = await apiRequest('/api/admin/attendance', 'PUT', { attendanceId: attId, status });
+            if (res.success) {
+                showToast('Status updated to ' + status, 'success');
+                loadLiveAttendance();
+            }
+        }
+
+        async function submitManualAttendance() {
+            const studentId = parseInt(document.getElementById('manual-student-select').value);
+            const status = document.getElementById('manual-status-select').value;
+            if (!studentId || !selectedClass) {
+                showToast('Select a student and class.', 'warning');
+                return;
+            }
+
+            const res = await apiRequest('/api/teacher/manual-mark', 'POST', {
+                studentId,
+                classId: selectedClass.classId,
+                subjectId: selectedClass.subjectId,
+                status
+            });
+
+            if (res.success) {
+                showToast(res.message, 'success');
+                loadLiveAttendance();
+            } else {
+                showToast(res.message || 'Failed.', 'error');
+            }
+        }
+
+        function toggleProjectorMode() {
+            const modal = document.getElementById('projector-modal');
+            if (modal.classList.contains('active')) {
+                closeModal('projector-modal');
+            } else {
+                if (!qrCodeInstance) {
+                    showToast('Please start a QR session first!', 'warning');
+                    return;
+                }
+                openModal('projector-modal');
+            }
+        }
+    </script>
+</body>
+</html>

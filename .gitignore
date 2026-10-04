@@ -1,0 +1,24 @@
+# Compiled Java binaries
+bin/
+*.class
+
+# SQLite Database
+*.db
+*.db-journal
+
+# Temporary and test logs
+*.log
+.system_generated/
+
+# IDE / Editor configuration
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# OS generated files
+Thumbs.db
+Desktop.ini
+.DS_Store
