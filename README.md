@@ -107,21 +107,26 @@ javac -encoding UTF-8 -cp "sqlite-jdbc.jar" -d bin src/com/attendance/*.java src
 java -cp "sqlite-jdbc.jar;bin" com.attendance.Main
 ```
 
-### Option C: Open in Browser
-Once running, open your web browser at:
-- **Local Application URL**: [http://localhost:8080](http://localhost:8080)
-- **Direct Student Portal**: [http://localhost:8080/student.html](http://localhost:8080/student.html)
-- **Direct Teacher Portal**: [http://localhost:8080/teacher.html](http://localhost:8080/teacher.html)
-- **Direct Admin Portal**: [http://localhost:8080/admin.html](http://localhost:8080/admin.html)
+### Option D: Live Cloud Deployment on Vercel 🌐
+This project is pre-configured for 1-click cloud deployment on Vercel:
+1. Push this repository to GitHub:
+   ```bash
+   git push origin main
+   ```
+2. Go to [vercel.com](https://vercel.com) and click **"Add New Project"**.
+3. Import your GitHub repository (`vedant5819`).
+4. Leave all default settings unchanged (Framework: Other, Root Directory: `./`) and click **Deploy**.
+5. Your system will be live on an HTTPS link (e.g. `https://your-project.vercel.app`) with active demo logins, dynamic QR rotation, and live attendance tracking!
 
 ---
 
 ## 🧪 Quick Test Walkthrough
 
-1. Open [http://localhost:8080](http://localhost:8080) and click **"Launch Teacher Portal"** (logged in as Dr. Turing).
+1. Open [http://localhost:8080](http://localhost:8080) (or your live Vercel URL) and click **"Launch Teacher Portal"** (logged in as Dr. Turing).
 2. Click **"Start Dynamic QR Session"**. You will see the dynamic QR code with a live 30-second rotating countdown ring.
-3. In another tab or browser window, open [http://localhost:8080](http://localhost:8080) and click **"Launch Student Portal"** (logged in as Alex Morgan).
+3. In another tab or browser window, open the application and click **"Launch Student Portal"** (logged in as Alex Morgan).
 4. Click **"Submit Scan"** in the Quick Desktop Test Scan box (or use your mobile/webcam).
 5. Listen to the pleasant double audio chime and observe:
    - Student portal immediately generates a digital verified attendance slip and updates the overall attendance %.
    - Teacher portal real-time stream counter increments from 0 to 1 with an instant row addition showing Alex Morgan's timestamp!
+
