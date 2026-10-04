@@ -2,16 +2,16 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/api/:match*",
-      "destination": "/api/index.js"
+      "source": "/api/:path*",
+      "destination": "/api/index.js?__api_path=:path*"
     },
     {
       "source": "/web",
       "destination": "/index.html"
     },
     {
-      "source": "/web/:match*",
-      "destination": "/:match*"
+      "source": "/web/:path*",
+      "destination": "/:path*"
     }
   ],
   "headers": [

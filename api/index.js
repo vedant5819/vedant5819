@@ -94,18 +94,22 @@ module.exports = async function handler(req, res) {
     const parsedUrl = new URL(rawUrl, `http://${host}`);
     let pathname = parsedUrl.pathname;
 
-    // Handle catch-all query route if pathname was rewritten to /api/index.js
-    if (pathname === '/api/index.js' || pathname === '/api') {
-        if (req.query && req.query.route) {
-            const routeSegments = Array.isArray(req.query.route) ? req.query.route : [req.query.route];
-            pathname = '/api/' + routeSegments.join('/');
-        }
-    }
-
     const queryParams = {};
     parsedUrl.searchParams.forEach((v, k) => { queryParams[k] = v; });
     if (req.query) {
         Object.assign(queryParams, req.query);
+    }
+
+    // Accurately resolve original API pathname if rewritten by Vercel
+    if (queryParams.__api_path) {
+        pathname = '/api/' + queryParams.__api_path.replace(/^\/+/, '');
+    } else if (pathname === '/api/index.js' || pathname === '/api') {
+        if (queryParams.match) {
+            pathname = '/api/' + queryParams.match.replace(/^\/+/, '');
+        } else if (queryParams.route) {
+            const routeSegments = Array.isArray(queryParams.route) ? queryParams.route : [queryParams.route];
+            pathname = '/api/' + routeSegments.join('/');
+        }
     }
 
     // Parse JSON body
